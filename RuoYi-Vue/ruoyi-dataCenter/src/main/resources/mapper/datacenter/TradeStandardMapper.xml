@@ -50,10 +50,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="creatorName != null  and creatorName != ''"> and creator_name like concat('%', #{creatorName}, '%')</if>
             <if test="modifierName != null  and modifierName != ''"> and modifier_name like concat('%', #{modifierName}, '%')</if>
             <!-- 按创建时间区间检索（params.beginCreateTime / params.endCreateTime） -->
-            <if test="params.beginCreateTime != null and params.beginCreateTime != ''"><!-- 开始时间 -->
+            <!-- 外层先判 params != null，避免 params 为 null 时 OGNL 解析抛 NPE -->
+            <if test="params != null and params.beginCreateTime != null and params.beginCreateTime != ''"><!-- 开始时间 -->
                 and date_format(create_time,'%Y-%m-%d') &gt;= date_format(#{params.beginCreateTime},'%Y-%m-%d')
             </if>
-            <if test="params.endCreateTime != null and params.endCreateTime != ''"><!-- 结束时间 -->
+            <if test="params != null and params.endCreateTime != null and params.endCreateTime != ''"><!-- 结束时间 -->
                 and date_format(create_time,'%Y-%m-%d') &lt;= date_format(#{params.endCreateTime},'%Y-%m-%d')
             </if>
         </where>
