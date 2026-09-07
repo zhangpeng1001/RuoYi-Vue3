@@ -1,2 +1,9 @@
 /.trae/
 /.idea/
+/RuoYi-Vue3/node_modules/
+/RuoYi-Vue/ruoyi-system/target/
+/RuoYi-Vue/ruoyi-quartz/target/
+/RuoYi-Vue/ruoyi-generator/target/
+/RuoYi-Vue/ruoyi-framework/target/
+/RuoYi-Vue/ruoyi-common/target/
+/RuoYi-Vue/ruoyi-admin/target/
