@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.datacenter.mapper.CleanRuleConfigMapper">
+    
+    <resultMap type="CleanRuleConfig" id="CleanRuleConfigResult">
+        <result property="id"    column="id"    />
+        <result property="parentId"    column="parent_id"    />
+        <result property="ruleName"    column="rule_name"    />
+        <result property="ruleCode"    column="rule_code"    />
+        <result property="ruleSort"    column="rule_sort"    />
+        <result property="ext"    column="ext"    />
+        <result property="remark"    column="remark"    />
+        <result property="status"    column="status"    />
+    </resultMap>
+
+    <sql id="selectCleanRuleConfigVo">
+        select id, parent_id, rule_name, rule_code, rule_sort, ext, remark, status from clean_rule_config
+    </sql>
+
+    <select id="selectCleanRuleConfigList" parameterType="CleanRuleConfig" resultMap="CleanRuleConfigResult">
+        <include refid="selectCleanRuleConfigVo"/>
+        <where>  
+            <if test="parentId != null  and parentId != ''"> and parent_id = #{parentId}</if>
+            <if test="ruleName != null  and ruleName != ''"> and rule_name like concat('%', #{ruleName}, '%')</if>
+            <if test="ruleCode != null  and ruleCode != ''"> and rule_code = #{ruleCode}</if>
+            <if test="ruleSort != null "> and rule_sort = #{ruleSort}</if>
+            <if test="ext != null  and ext != ''"> and ext = #{ext}</if>
+            <if test="status != null "> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectCleanRuleConfigById" parameterType="Long" resultMap="CleanRuleConfigResult">
+        <include refid="selectCleanRuleConfigVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertCleanRuleConfig" parameterType="CleanRuleConfig" useGeneratedKeys="true" keyProperty="id">
+        insert into clean_rule_config
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parentId != null and parentId != ''">parent_id,</if>
+            <if test="ruleName != null">rule_name,</if>
+            <if test="ruleCode != null">rule_code,</if>
+            <if test="ruleSort != null">rule_sort,</if>
+            <if test="ext != null">ext,</if>
+            <if test="remark != null">remark,</if>
+            <if test="status != null">status,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parentId != null and parentId != ''">#{parentId},</if>
+            <if test="ruleName != null">#{ruleName},</if>
+            <if test="ruleCode != null">#{ruleCode},</if>
+            <if test="ruleSort != null">#{ruleSort},</if>
+            <if test="ext != null">#{ext},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="status != null">#{status},</if>
+         </trim>
+    </insert>
+
+    <update id="updateCleanRuleConfig" parameterType="CleanRuleConfig">
+        update clean_rule_config
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parentId != null and parentId != ''">parent_id = #{parentId},</if>
+            <if test="ruleName != null">rule_name = #{ruleName},</if>
+            <if test="ruleCode != null">rule_code = #{ruleCode},</if>
+            <if test="ruleSort != null">rule_sort = #{ruleSort},</if>
+            <if test="ext != null">ext = #{ext},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="status != null">status = #{status},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCleanRuleConfigById" parameterType="Long">
+        delete from clean_rule_config where id = #{id}
+    </delete>
+
+    <delete id="deleteCleanRuleConfigByIds" parameterType="String">
+        delete from clean_rule_config where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.datacenter.mapper.TradeStandardMapper">
+    
+    <resultMap type="TradeStandard" id="TradeStandardResult">
+        <result property="id"    column="id"    />
+        <result property="tradeStandardName"    column="trade_standard_name"    />
+        <result property="type"    column="type"    />
+        <result property="dataSourceId"    column="data_source_id"    />
+        <result property="forldId"    column="forld_id"    />
+        <result property="extractType"    column="extract_type"    />
+        <result property="ip"    column="ip"    />
+        <result property="description"    column="description"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="creator"    column="creator"    />
+        <result property="modifier"    column="modifier"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="creatorName"    column="creator_name"    />
+        <result property="modifierName"    column="modifier_name"    />
+    </resultMap>
+
+    <sql id="selectTradeStandardVo">
+        select id, trade_standard_name, type, data_source_id, forld_id, extract_type, ip, description, del_flag, creator, modifier, create_time, update_time, creator_name, modifier_name from trade_standard
+    </sql>
+
+    <select id="selectTradeStandardList" parameterType="TradeStandard" resultMap="TradeStandardResult">
+        <include refid="selectTradeStandardVo"/>
+        <where>  
+            <if test="tradeStandardName != null  and tradeStandardName != ''"> and trade_standard_name like concat('%', #{tradeStandardName}, '%')</if>
+            <if test="type != null "> and type = #{type}</if>
+            <if test="dataSourceId != null "> and data_source_id = #{dataSourceId}</if>
+            <if test="forldId != null "> and forld_id = #{forldId}</if>
+            <if test="extractType != null "> and extract_type = #{extractType}</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="creator != null "> and creator = #{creator}</if>
+            <if test="modifier != null "> and modifier = #{modifier}</if>
+            <if test="creatorName != null  and creatorName != ''"> and creator_name like concat('%', #{creatorName}, '%')</if>
+            <if test="modifierName != null  and modifierName != ''"> and modifier_name like concat('%', #{modifierName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectTradeStandardById" parameterType="Long" resultMap="TradeStandardResult">
+        <include refid="selectTradeStandardVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertTradeStandard" parameterType="TradeStandard" useGeneratedKeys="true" keyProperty="id">
+        insert into trade_standard
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tradeStandardName != null and tradeStandardName != ''">trade_standard_name,</if>
+            <if test="type != null">type,</if>
+            <if test="dataSourceId != null">data_source_id,</if>
+            <if test="forldId != null">forld_id,</if>
+            <if test="extractType != null">extract_type,</if>
+            <if test="ip != null">ip,</if>
+            <if test="description != null">description,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="creator != null">creator,</if>
+            <if test="modifier != null">modifier,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="creatorName != null">creator_name,</if>
+            <if test="modifierName != null">modifier_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tradeStandardName != null and tradeStandardName != ''">#{tradeStandardName},</if>
+            <if test="type != null">#{type},</if>
+            <if test="dataSourceId != null">#{dataSourceId},</if>
+            <if test="forldId != null">#{forldId},</if>
+            <if test="extractType != null">#{extractType},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="description != null">#{description},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="creator != null">#{creator},</if>
+            <if test="modifier != null">#{modifier},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="creatorName != null">#{creatorName},</if>
+            <if test="modifierName != null">#{modifierName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateTradeStandard" parameterType="TradeStandard">
+        update trade_standard
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tradeStandardName != null and tradeStandardName != ''">trade_standard_name = #{tradeStandardName},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="dataSourceId != null">data_source_id = #{dataSourceId},</if>
+            <if test="forldId != null">forld_id = #{forldId},</if>
+            <if test="extractType != null">extract_type = #{extractType},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="creator != null">creator = #{creator},</if>
+            <if test="modifier != null">modifier = #{modifier},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorName != null">creator_name = #{creatorName},</if>
+            <if test="modifierName != null">modifier_name = #{modifierName},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTradeStandardById" parameterType="Long">
+        delete from trade_standard where id = #{id}
+    </delete>
+
+    <delete id="deleteTradeStandardByIds" parameterType="String">
+        delete from trade_standard where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
