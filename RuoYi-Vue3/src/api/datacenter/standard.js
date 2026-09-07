@@ -35,7 +35,7 @@ export function updateStandard(data) {
   })
 }
 
-// 删除行业标准管理
+// 删除行业标准管理（软删除）
 export function delStandard(id) {
   return request({
     url: '/datacenter/standard/' + id,

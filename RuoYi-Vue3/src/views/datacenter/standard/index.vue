@@ -1,21 +1,62 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="名称" prop="tradeStandardName">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="88px">
+      <el-form-item label="标准名称" prop="tradeStandardName">
         <el-input
             v-model="queryParams.tradeStandardName"
-            placeholder="请输入名称"
+            placeholder="请输入标准名称"
             clearable
+            style="width: 200px"
             @keyup.enter="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="标准类型" prop="type">
+        <el-select v-model="queryParams.type" placeholder="请选择标准类型" clearable style="width: 200px">
+          <el-option
+              v-for="dict in data_standard_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="提取类型" prop="extractType">
+        <el-select v-model="queryParams.extractType" placeholder="请选择提取类型" clearable style="width: 200px">
+          <el-option
+              v-for="dict in data_extract_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input
             v-model="queryParams.description"
             placeholder="请输入描述"
             clearable
+            style="width: 200px"
             @keyup.enter="handleQuery"
         />
+      </el-form-item>
+      <el-form-item label="数据源IP" prop="ip">
+        <el-input
+            v-model="queryParams.ip"
+            placeholder="请输入数据源IP"
+            clearable
+            style="width: 200px"
+            @keyup.enter="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="创建时间" style="width: 388px">
+        <el-date-picker
+            v-model="dateRange"
+            value-format="YYYY-MM-DD"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+        ></el-date-picker>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -32,6 +73,15 @@
             @click="handleAdd"
             v-hasPermi="['datacenter:standard:add']"
         >新增</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+            type="info"
+            plain
+            icon="Upload"
+            @click="handleImport"
+            v-hasPermi="['datacenter:standard:import']"
+        >导入</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
@@ -67,18 +117,29 @@
 
     <el-table v-loading="loading" :data="standardList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="ID" align="center" prop="id" />
-      <el-table-column label="名称" align="center" prop="tradeStandardName" />
-      <el-table-column label="标准类型" align="center" prop="type" />
-      <el-table-column label="数据源ID" align="center" prop="dataSourceId" />
-      <el-table-column label="文件ID" align="center" prop="forldId" />
-      <el-table-column label="数据源ip" align="center" prop="ip" />
-      <el-table-column label="描述" align="center" prop="description" />
-      <el-table-column label="创建人编码" align="center" prop="creator" />
-      <el-table-column label="修改人编码" align="center" prop="modifier" />
-      <el-table-column label="创建人名称" align="center" prop="creatorName" />
-      <el-table-column label="修改人名称" align="center" prop="modifierName" />
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="ID" align="center" prop="id" width="80" />
+      <el-table-column label="标准名称" align="center" prop="tradeStandardName" :show-overflow-tooltip="true" />
+      <el-table-column label="标准类型" align="center" prop="type" width="100">
+        <template #default="scope">
+          <dict-tag :options="data_standard_type" :value="scope.row.type" />
+        </template>
+      </el-table-column>
+      <el-table-column label="提取类型" align="center" prop="extractType" width="120">
+        <template #default="scope">
+          <dict-tag :options="data_extract_type" :value="scope.row.extractType" />
+        </template>
+      </el-table-column>
+      <el-table-column label="数据源ID" align="center" prop="dataSourceId" width="100" />
+      <el-table-column label="文件ID" align="center" prop="forldId" width="100" />
+      <el-table-column label="数据源IP" align="center" prop="ip" width="140" />
+      <el-table-column label="描述" align="center" prop="description" :show-overflow-tooltip="true" />
+      <el-table-column label="创建人" align="center" prop="creatorName" width="100" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="160">
+        <template #default="scope">
+          <span>{{ parseTime(scope.row.createTime) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="View" @click="handleViewData(scope.row)" v-hasPermi="['datacenter:standard:query']">详情</el-button>
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['datacenter:standard:edit']">修改</el-button>
@@ -97,58 +158,67 @@
 
     <!-- 行业标准管理详情抽屉 -->
     <standard-view-drawer ref="standardViewRef" />
+    <!-- 行业标准管理导入对话框 -->
+    <excel-import-dialog
+        ref="importStandardRef"
+        title="行业标准导入"
+        action="/datacenter/standard/importData"
+        template-action="/datacenter/standard/importTemplate"
+        template-file-name="standard_template"
+        update-support-label="是否更新已经存在的标准数据"
+        @success="getList"
+    />
     <!-- 添加或修改行业标准管理对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
       <el-form ref="standardRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="24">
-            <el-form-item label="名称" prop="tradeStandardName">
-              <el-input v-model="form.tradeStandardName" placeholder="请输入名称" />
+            <el-form-item label="标准名称" prop="tradeStandardName">
+              <el-input v-model="form.tradeStandardName" placeholder="请输入标准名称" maxlength="100" />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
+            <el-form-item label="标准类型" prop="type">
+              <el-select v-model="form.type" placeholder="请选择标准类型" style="width: 100%">
+                <el-option
+                    v-for="dict in data_standard_type"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="提取类型" prop="extractType">
+              <el-select v-model="form.extractType" placeholder="请选择提取类型" style="width: 100%">
+                <el-option
+                    v-for="dict in data_extract_type"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
             <el-form-item label="数据源ID" prop="dataSourceId">
-              <el-input v-model="form.dataSourceId" placeholder="请输入数据源ID" />
+              <el-input v-model.number="form.dataSourceId" placeholder="请输入数据源ID" />
             </el-form-item>
           </el-col>
-          <el-col :span="24">
+          <el-col :span="12">
             <el-form-item label="文件ID" prop="forldId">
-              <el-input v-model="form.forldId" placeholder="请输入文件ID" />
+              <el-input v-model.number="form.forldId" placeholder="请输入文件ID" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="数据源ip" prop="ip">
-              <el-input v-model="form.ip" placeholder="请输入数据源ip" />
+            <el-form-item label="数据源IP" prop="ip">
+              <el-input v-model="form.ip" placeholder="请输入数据源IP，如 192.168.1.1" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item label="描述" prop="description">
-              <el-input v-model="form.description" placeholder="请输入描述" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="逻辑删除标识 0 未删除 1 删除" prop="delFlag">
-              <el-input v-model="form.delFlag" placeholder="请输入逻辑删除标识 0 未删除 1 删除" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="创建人编码" prop="creator">
-              <el-input v-model="form.creator" placeholder="请输入创建人编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="修改人编码" prop="modifier">
-              <el-input v-model="form.modifier" placeholder="请输入修改人编码" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="创建人名称" prop="creatorName">
-              <el-input v-model="form.creatorName" placeholder="请输入创建人名称" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-form-item label="修改人名称" prop="modifierName">
-              <el-input v-model="form.modifierName" placeholder="请输入修改人名称" />
+              <el-input v-model="form.description" type="textarea" placeholder="请输入描述" :rows="3" maxlength="500" show-word-limit />
             </el-form-item>
           </el-col>
         </el-row>
@@ -166,8 +236,10 @@
 <script setup name="Standard">
 import { listStandard, getStandard, delStandard, addStandard, updateStandard } from "@/api/datacenter/standard"
 import StandardViewDrawer from "./view"
+import ExcelImportDialog from "@/components/ExcelImportDialog"
 
 const { proxy } = getCurrentInstance()
+const { data_standard_type, data_extract_type } = useDict("data_standard_type", "data_extract_type")
 
 const standardList = ref([])
 const open = ref(false)
@@ -178,6 +250,22 @@ const single = ref(true)
 const multiple = ref(true)
 const total = ref(0)
 const title = ref("")
+const dateRange = ref([])
+
+/** IP 格式校验（IPv4） */
+function validateIp(rule, value, callback) {
+  if (!value) {
+    callback()
+    return
+  }
+  // IPv4 简单正则校验
+  const ipReg = /^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d{2}|[1-9]?\d)){3}$/
+  if (!ipReg.test(value)) {
+    callback(new Error('数据源IP格式不正确'))
+  } else {
+    callback()
+  }
+}
 
 const data = reactive({
   form: {},
@@ -186,12 +274,21 @@ const data = reactive({
     pageSize: 10,
     tradeStandardName: undefined,
     type: undefined,
+    extractType: undefined,
     description: undefined,
+    ip: undefined,
   },
   rules: {
     tradeStandardName: [
-      { required: true, message: "名称不能为空", trigger: "blur" }
+      { required: true, message: "标准名称不能为空", trigger: "blur" },
+      { max: 100, message: "标准名称长度不能超过100个字符", trigger: "blur" }
     ],
+    type: [
+      { required: true, message: "标准类型不能为空", trigger: "change" }
+    ],
+    ip: [
+      { validator: validateIp, trigger: "blur" }
+    ]
   }
 })
 
@@ -200,7 +297,8 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询行业标准管理列表 */
 function getList() {
   loading.value = true
-  listStandard(queryParams.value).then(response => {
+  // 时间区间参数（RuoYi 约定放在 params 内）
+  listStandard(proxy.addDateRange(queryParams.value, dateRange.value, "CreateTime")).then(response => {
     standardList.value = response.rows
     total.value = response.total
     loading.value = false
@@ -213,7 +311,7 @@ function cancel() {
   reset()
 }
 
-/** 表单重置 */
+/** 表单重置（仅业务字段，审计字段由后端自动填充） */
 function reset() {
   form.value = {
     id: null,
@@ -223,14 +321,7 @@ function reset() {
     forldId: null,
     extractType: null,
     ip: null,
-    description: null,
-    delFlag: null,
-    creator: null,
-    modifier: null,
-    createTime: null,
-    updateTime: null,
-    creatorName: null,
-    modifierName: null
+    description: null
   }
   proxy.resetForm("standardRef")
 }
@@ -243,6 +334,7 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
+  dateRange.value = []
   proxy.resetForm("queryRef")
   handleQuery()
 }
@@ -258,7 +350,7 @@ function handleSelectionChange(selection) {
 function handleAdd() {
   reset()
   open.value = true
-  title.value = "添加行业标准管理"
+  title.value = "添加行业标准"
 }
 
 /** 修改按钮操作 */
@@ -268,7 +360,7 @@ function handleUpdate(row) {
   getStandard(_id).then(response => {
     form.value = response.data
     open.value = true
-    title.value = "修改行业标准管理"
+    title.value = "修改行业标准"
   })
 }
 
@@ -293,10 +385,10 @@ function submitForm() {
   })
 }
 
-/** 删除按钮操作 */
+/** 删除按钮操作（后端为软删除，前端交互不变） */
 function handleDelete(row) {
   const _ids = row.id || ids.value
-  proxy.$modal.confirm('是否确认删除行业标准管理编号为"' + _ids + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除行业标准编号为"' + _ids + '"的数据项？').then(function() {
     return delStandard(_ids)
   }).then(() => {
     getList()
@@ -307,6 +399,11 @@ function handleDelete(row) {
 /** 详情按钮操作 */
 function handleViewData(row) {
   proxy.$refs["standardViewRef"].open(row.id)
+}
+
+/** 导入按钮操作 */
+function handleImport() {
+  proxy.$refs["importStandardRef"].open()
 }
 
 /** 导出按钮操作 */

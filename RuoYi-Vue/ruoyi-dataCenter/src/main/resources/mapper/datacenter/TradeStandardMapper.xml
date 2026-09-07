@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.datacenter.mapper.TradeStandardMapper">
-    
+
     <resultMap type="TradeStandard" id="TradeStandardResult">
         <result property="id"    column="id"    />
         <result property="tradeStandardName"    column="trade_standard_name"    />
@@ -26,26 +26,44 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select id, trade_standard_name, type, data_source_id, forld_id, extract_type, ip, description, del_flag, creator, modifier, create_time, update_time, creator_name, modifier_name from trade_standard
     </sql>
 
+    <!-- 列表查询：默认仅返回未删除数据，del_flag 由 Service 强制置 0 -->
     <select id="selectTradeStandardList" parameterType="TradeStandard" resultMap="TradeStandardResult">
         <include refid="selectTradeStandardVo"/>
-        <where>  
+        <where>
+            <!-- 软删除过滤：del_flag 默认 0；若调用方显式传 1 则允许查询已删除数据 -->
+            <if test="delFlag == null">
+                and del_flag = 0
+            </if>
+            <if test="delFlag != null">
+                and del_flag = #{delFlag}
+            </if>
             <if test="tradeStandardName != null  and tradeStandardName != ''"> and trade_standard_name like concat('%', #{tradeStandardName}, '%')</if>
             <if test="type != null "> and type = #{type}</if>
             <if test="dataSourceId != null "> and data_source_id = #{dataSourceId}</if>
             <if test="forldId != null "> and forld_id = #{forldId}</if>
             <if test="extractType != null "> and extract_type = #{extractType}</if>
-            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
-            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <!-- ip/description 改为模糊匹配，提升检索体验 -->
+            <if test="ip != null  and ip != ''"> and ip like concat('%', #{ip}, '%')</if>
+            <if test="description != null  and description != ''"> and description like concat('%', #{description}, '%')</if>
             <if test="creator != null "> and creator = #{creator}</if>
             <if test="modifier != null "> and modifier = #{modifier}</if>
             <if test="creatorName != null  and creatorName != ''"> and creator_name like concat('%', #{creatorName}, '%')</if>
             <if test="modifierName != null  and modifierName != ''"> and modifier_name like concat('%', #{modifierName}, '%')</if>
+            <!-- 按创建时间区间检索（params.beginCreateTime / params.endCreateTime） -->
+            <if test="params.beginCreateTime != null and params.beginCreateTime != ''"><!-- 开始时间 -->
+                and date_format(create_time,'%Y-%m-%d') &gt;= date_format(#{params.beginCreateTime},'%Y-%m-%d')
+            </if>
+            <if test="params.endCreateTime != null and params.endCreateTime != ''"><!-- 结束时间 -->
+                and date_format(create_time,'%Y-%m-%d') &lt;= date_format(#{params.endCreateTime},'%Y-%m-%d')
+            </if>
         </where>
+        order by id desc
     </select>
-    
+
+    <!-- 详情查询：仅返回未删除数据 -->
     <select id="selectTradeStandardById" parameterType="Long" resultMap="TradeStandardResult">
         <include refid="selectTradeStandardVo"/>
-        where id = #{id}
+        where id = #{id} and del_flag = 0
     </select>
 
     <insert id="insertTradeStandard" parameterType="TradeStandard" useGeneratedKeys="true" keyProperty="id">
@@ -84,6 +102,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
          </trim>
     </insert>
 
+    <!-- 修改：仅更新业务字段，del_flag 不在此更新，防止通过修改接口篡改删除标识 -->
     <update id="updateTradeStandard" parameterType="TradeStandard">
         update trade_standard
         <trim prefix="SET" suffixOverrides=",">
@@ -94,7 +113,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="extractType != null">extract_type = #{extractType},</if>
             <if test="ip != null">ip = #{ip},</if>
             <if test="description != null">description = #{description},</if>
-            <if test="delFlag != null">del_flag = #{delFlag},</if>
             <if test="creator != null">creator = #{creator},</if>
             <if test="modifier != null">modifier = #{modifier},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
@@ -102,17 +120,32 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="creatorName != null">creator_name = #{creatorName},</if>
             <if test="modifierName != null">modifier_name = #{modifierName},</if>
         </trim>
-        where id = #{id}
+        where id = #{id} and del_flag = 0
     </update>
 
+    <!-- 物理删除：仅供内部清理任务使用 -->
     <delete id="deleteTradeStandardById" parameterType="Long">
         delete from trade_standard where id = #{id}
     </delete>
 
     <delete id="deleteTradeStandardByIds" parameterType="String">
-        delete from trade_standard where id in 
+        delete from trade_standard where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <!-- 软删除：更新 del_flag=1，记录修改人编码/名称/时间 -->
+    <update id="softDeleteTradeStandardByIds">
+        update trade_standard
+        set del_flag = 1,
+            modifier = #{modifier},
+            modifier_name = #{modifierName},
+            update_time = #{updateTime}
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and del_flag = 0
+    </update>
 </mapper>
