@@ -13,7 +13,7 @@
         </el-col>
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">标准类型 1行业标准、2自定义标准：</label>
+            <label class="info-label">标准类型：</label>
             <span class="info-value plaintext">
               {{ info.type }}
             </span>
@@ -31,7 +31,7 @@
         </el-col>
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">文件的ID：文件夹的ID对应package_storage的id：</label>
+            <label class="info-label">文件ID：</label>
             <span class="info-value plaintext">
               {{ info.forldId }}
             </span>
@@ -41,22 +41,12 @@
       <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">提取标准类型 1:file 2:建模数据源：</label>
-            <span class="info-value plaintext">
-              {{ info.extractType }}
-            </span>
-          </div>
-        </el-col>
-        <el-col :span="12">
-          <div class="info-item">
             <label class="info-label">数据源ip：</label>
             <span class="info-value plaintext">
               {{ info.ip }}
             </span>
           </div>
         </el-col>
-      </el-row>
-      <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
             <label class="info-label">描述：</label>
@@ -65,24 +55,26 @@
             </span>
           </div>
         </el-col>
+      </el-row>
+      <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">创建人编码。创建人指运营系统管理人员：</label>
+            <label class="info-label">创建人编码：</label>
             <span class="info-value plaintext">
               {{ info.creator }}
             </span>
           </div>
         </el-col>
-      </el-row>
-      <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
-            <label class="info-label">修改人编码。修改人指运营系统人员：</label>
+            <label class="info-label">修改人编码：</label>
             <span class="info-value plaintext">
               {{ info.modifier }}
             </span>
           </div>
         </el-col>
+      </el-row>
+      <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
             <label class="info-label">创建人名称：</label>
@@ -91,8 +83,6 @@
             </span>
           </div>
         </el-col>
-      </el-row>
-      <el-row :gutter="20" class="mb8">
         <el-col :span="12">
           <div class="info-item">
             <label class="info-label">修改人名称：</label>

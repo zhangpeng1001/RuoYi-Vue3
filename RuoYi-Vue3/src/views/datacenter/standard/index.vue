@@ -3,74 +3,18 @@
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="名称" prop="tradeStandardName">
         <el-input
-          v-model="queryParams.tradeStandardName"
-          placeholder="请输入名称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="数据源ID" prop="dataSourceId">
-        <el-input
-          v-model="queryParams.dataSourceId"
-          placeholder="请输入数据源ID"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="文件的ID：文件夹的ID对应package_storage的id" prop="forldId">
-        <el-input
-          v-model="queryParams.forldId"
-          placeholder="请输入文件的ID：文件夹的ID对应package_storage的id"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="数据源ip" prop="ip">
-        <el-input
-          v-model="queryParams.ip"
-          placeholder="请输入数据源ip"
-          clearable
-          @keyup.enter="handleQuery"
+            v-model="queryParams.tradeStandardName"
+            placeholder="请输入名称"
+            clearable
+            @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="描述" prop="description">
         <el-input
-          v-model="queryParams.description"
-          placeholder="请输入描述"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建人编码。创建人指运营系统管理人员" prop="creator">
-        <el-input
-          v-model="queryParams.creator"
-          placeholder="请输入创建人编码。创建人指运营系统管理人员"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="修改人编码。修改人指运营系统人员" prop="modifier">
-        <el-input
-          v-model="queryParams.modifier"
-          placeholder="请输入修改人编码。修改人指运营系统人员"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="创建人名称" prop="creatorName">
-        <el-input
-          v-model="queryParams.creatorName"
-          placeholder="请输入创建人名称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="修改人名称" prop="modifierName">
-        <el-input
-          v-model="queryParams.modifierName"
-          placeholder="请输入修改人名称"
-          clearable
-          @keyup.enter="handleQuery"
+            v-model="queryParams.description"
+            placeholder="请输入描述"
+            clearable
+            @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item>
@@ -82,40 +26,40 @@
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['datacenter:standard:add']"
+            type="primary"
+            plain
+            icon="Plus"
+            @click="handleAdd"
+            v-hasPermi="['datacenter:standard:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['datacenter:standard:edit']"
+            type="success"
+            plain
+            icon="Edit"
+            :disabled="single"
+            @click="handleUpdate"
+            v-hasPermi="['datacenter:standard:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['datacenter:standard:remove']"
+            type="danger"
+            plain
+            icon="Delete"
+            :disabled="multiple"
+            @click="handleDelete"
+            v-hasPermi="['datacenter:standard:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
         <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-          v-hasPermi="['datacenter:standard:export']"
+            type="warning"
+            plain
+            icon="Download"
+            @click="handleExport"
+            v-hasPermi="['datacenter:standard:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -123,16 +67,15 @@
 
     <el-table v-loading="loading" :data="standardList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="${comment}" align="center" prop="id" />
+      <el-table-column label="ID" align="center" prop="id" />
       <el-table-column label="名称" align="center" prop="tradeStandardName" />
-      <el-table-column label="标准类型 1行业标准、2自定义标准" align="center" prop="type" />
+      <el-table-column label="标准类型" align="center" prop="type" />
       <el-table-column label="数据源ID" align="center" prop="dataSourceId" />
-      <el-table-column label="文件的ID：文件夹的ID对应package_storage的id" align="center" prop="forldId" />
-      <el-table-column label="提取标准类型 1:file 2:建模数据源" align="center" prop="extractType" />
+      <el-table-column label="文件ID" align="center" prop="forldId" />
       <el-table-column label="数据源ip" align="center" prop="ip" />
       <el-table-column label="描述" align="center" prop="description" />
-      <el-table-column label="创建人编码。创建人指运营系统管理人员" align="center" prop="creator" />
-      <el-table-column label="修改人编码。修改人指运营系统人员" align="center" prop="modifier" />
+      <el-table-column label="创建人编码" align="center" prop="creator" />
+      <el-table-column label="修改人编码" align="center" prop="modifier" />
       <el-table-column label="创建人名称" align="center" prop="creatorName" />
       <el-table-column label="修改人名称" align="center" prop="modifierName" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -143,13 +86,13 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
+        v-show="total>0"
+        :total="total"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        @pagination="getList"
     />
 
     <!-- 行业标准管理详情抽屉 -->
@@ -169,8 +112,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="文件的ID：文件夹的ID对应package_storage的id" prop="forldId">
-              <el-input v-model="form.forldId" placeholder="请输入文件的ID：文件夹的ID对应package_storage的id" />
+            <el-form-item label="文件ID" prop="forldId">
+              <el-input v-model="form.forldId" placeholder="请输入文件ID" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -189,13 +132,13 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="创建人编码。创建人指运营系统管理人员" prop="creator">
-              <el-input v-model="form.creator" placeholder="请输入创建人编码。创建人指运营系统管理人员" />
+            <el-form-item label="创建人编码" prop="creator">
+              <el-input v-model="form.creator" placeholder="请输入创建人编码" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item label="修改人编码。修改人指运营系统人员" prop="modifier">
-              <el-input v-model="form.modifier" placeholder="请输入修改人编码。修改人指运营系统人员" />
+            <el-form-item label="修改人编码" prop="modifier">
+              <el-input v-model="form.modifier" placeholder="请输入修改人编码" />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -243,15 +186,7 @@ const data = reactive({
     pageSize: 10,
     tradeStandardName: undefined,
     type: undefined,
-    dataSourceId: undefined,
-    forldId: undefined,
-    extractType: undefined,
-    ip: undefined,
     description: undefined,
-    creator: undefined,
-    modifier: undefined,
-    creatorName: undefined,
-    modifierName: undefined
   },
   rules: {
     tradeStandardName: [
