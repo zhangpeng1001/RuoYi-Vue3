@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="新增商品" v-model="visible" width="1100px" append-to-body :close-on-click-modal="false">
+  <el-dialog title="新增商品" v-model="visible" width="1100px" append-to-body :close-on-click-modal="false" @closed="handleDialogClosed">
     <el-form ref="productRef" :model="form" :rules="rules" label-width="100px">
       <!-- 第一行：省 / 市 / 代理商 -->
       <el-row :gutter="20">
@@ -91,7 +91,7 @@
 
       <!-- 商品描述（富文本） -->
       <el-form-item label="商品描述" prop="description">
-        <editor v-model="form.description" :min-height="200" />
+        <editor :key="editorRenderKey" v-model="form.description" :min-height="200" />
       </el-form-item>
 
       <!-- 预览图 1/2/3 -->
@@ -178,6 +178,8 @@ const agentKeyword = ref("")
 const selectedUsers = ref([])
 // 3 个预览图位
 const previewImages = ref([{ url: "" }, { url: "" }, { url: "" }])
+// 富文本编辑器重建 key：reset 时 +1 强制销毁重建，确保内部 quill 实例彻底清空
+const editorRenderKey = ref(0)
 const bigImgVisible = ref(false)
 const bigImgUrl = ref("")
 
@@ -259,6 +261,8 @@ function reset() {
   selectedUsers.value = []
   previewImages.value = [{ url: "" }, { url: "" }, { url: "" }]
   cityList.value = []
+  // 强制重建富文本编辑器，清空内部 quill 实例内容（仅清空 form.description 字段无法清空 quill 内部 HTML）
+  editorRenderKey.value++
   form.value = {
     provinceCode: undefined,
     provinceName: undefined,
@@ -451,10 +455,14 @@ function submitForm() {
   })
 }
 
+/** 弹窗关闭后统一清理（X / ESC / 取消 / 提交成功 均会触发） */
+function handleDialogClosed() {
+  reset()
+}
+
 /** 取消 */
 function cancel() {
   visible.value = false
-  reset()
 }
 
 const emit = defineEmits(["success"])
