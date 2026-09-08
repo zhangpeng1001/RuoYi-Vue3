@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.product.mapper.ProductContactMapper">
+
+    <resultMap type="ProductContact" id="ProductContactResult">
+        <result property="id"         column="id"          />
+        <result property="productId"  column="product_id"  />
+        <result property="name"       column="name"        />
+        <result property="phone"      column="phone"       />
+        <result property="email"      column="email"       />
+        <result property="createTime" column="create_time" />
+        <result property="isDeleted"  column="is_deleted"  />
+    </resultMap>
+
+    <!-- 按商品ID查询未删除联系方式 -->
+    <select id="selectContactsByProductId" parameterType="Long" resultMap="ProductContactResult">
+        select id, product_id, name, phone, email, create_time, is_deleted
+        from product_contact
+        where product_id = #{productId} and is_deleted = 0
+        order by id asc
+    </select>
+
+    <!-- 批量新增联系方式 -->
+    <insert id="batchInsertContact">
+        insert into product_contact (product_id, name, phone, email, create_time, is_deleted) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.productId}, #{item.name}, #{item.phone}, #{item.email}, #{item.createTime}, #{item.isDeleted})
+        </foreach>
+    </insert>
+
+    <!-- 按商品ID软删除联系方式 -->
+    <update id="softDeleteByProductId" parameterType="Long">
+        update product_contact set is_deleted = 1 where product_id = #{productId} and is_deleted = 0
+    </update>
+</mapper>

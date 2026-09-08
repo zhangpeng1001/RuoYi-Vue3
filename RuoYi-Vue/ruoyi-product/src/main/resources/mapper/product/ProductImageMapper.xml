@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.product.mapper.ProductImageMapper">
+
+    <resultMap type="ProductImage" id="ProductImageResult">
+        <result property="id"         column="id"          />
+        <result property="productId"  column="product_id"  />
+        <result property="imageUrl"   column="image_url"   />
+        <result property="sortOrder"  column="sort_order"  />
+        <result property="createTime" column="create_time" />
+        <result property="isDeleted"  column="is_deleted"  />
+    </resultMap>
+
+    <!-- 按商品ID查询未删除图片 -->
+    <select id="selectImagesByProductId" parameterType="Long" resultMap="ProductImageResult">
+        select id, product_id, image_url, sort_order, create_time, is_deleted
+        from product_image
+        where product_id = #{productId} and is_deleted = 0
+        order by sort_order asc
+    </select>
+
+    <!-- 批量新增图片 -->
+    <insert id="batchInsertImage">
+        insert into product_image (product_id, image_url, sort_order, create_time, is_deleted) values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.productId}, #{item.imageUrl}, #{item.sortOrder}, #{item.createTime}, #{item.isDeleted})
+        </foreach>
+    </insert>
+
+    <!-- 按商品ID软删除图片 -->
+    <update id="softDeleteByProductId" parameterType="Long">
+        update product_image set is_deleted = 1 where product_id = #{productId} and is_deleted = 0
+    </update>
+</mapper>

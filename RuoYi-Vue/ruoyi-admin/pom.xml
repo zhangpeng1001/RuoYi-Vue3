@@ -60,6 +60,12 @@
             <artifactId>ruoyi-dataCenter</artifactId>
         </dependency>
 
+        <!-- 商品管理模块-->
+        <dependency>
+            <groupId>com.ruoyi</groupId>
+            <artifactId>ruoyi-product</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>

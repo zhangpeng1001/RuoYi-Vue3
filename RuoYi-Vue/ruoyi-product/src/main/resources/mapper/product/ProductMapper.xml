@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.product.mapper.ProductMapper">
+
+    <resultMap type="Product" id="ProductResult">
+        <result property="id"            column="id"             />
+        <result property="provinceCode"  column="province_code"   />
+        <result property="provinceName"  column="province_name"   />
+        <result property="cityCode"      column="city_code"       />
+        <result property="cityName"      column="city_name"       />
+        <result property="agentId"       column="agent_id"        />
+        <result property="agentName"     column="agent_name"      />
+        <result property="productName"   column="product_name"    />
+        <result property="amount"        column="amount"          />
+        <result property="productType"  column="product_type"    />
+        <result property="productColor" column="product_color"   />
+        <result property="publishTime"  column="publish_time"    />
+        <result property="status"        column="status"          />
+        <result property="description"  column="description"     />
+        <result property="remark"       column="remark"          />
+        <result property="isDeleted"    column="is_deleted"      />
+        <result property="createById"   column="create_by"       />
+        <result property="createByName" column="create_by_name"  />
+        <result property="createTime"   column="create_time"    />
+        <result property="updateTime"   column="update_time"    />
+    </resultMap>
+
+    <sql id="selectProductVo">
+        select id, province_code, province_name, city_code, city_name, agent_id, agent_name,
+               product_name, amount, product_type, product_color, publish_time, status,
+               description, remark, is_deleted, create_by, create_by_name, create_time, update_time
+        from product
+    </sql>
+
+    <!-- 列表查询：默认仅返回未删除数据，is_deleted 由 Service 强制置 0 -->
+    <select id="selectProductList" parameterType="Product" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        <where>
+            <!-- 软删除过滤：is_deleted 默认 0；若调用方显式传 1 则允许查询已删除数据 -->
+            <if test="isDeleted == null">
+                and is_deleted = 0
+            </if>
+            <if test="isDeleted != null">
+                and is_deleted = #{isDeleted}
+            </if>
+            <if test="provinceCode != null and provinceCode != ''"> and province_code = #{provinceCode}</if>
+            <if test="cityCode != null and cityCode != ''"> and city_code = #{cityCode}</if>
+            <!-- 代理商关键字模糊匹配 -->
+            <if test="agentName != null and agentName != ''"> and agent_name like concat('%', #{agentName}, '%')</if>
+            <!-- 商品名称模糊匹配 -->
+            <if test="productName != null and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="status != null"> and status = #{status}</if>
+            <!-- 操作时间区间检索（params.beginCreateTime / params.endCreateTime，由前端 addDateRange 注入） -->
+            <if test="params != null and params.beginCreateTime != null and params.beginCreateTime != ''">
+                and date_format(create_time,'%Y-%m-%d') &gt;= date_format(#{params.beginCreateTime},'%Y-%m-%d')
+            </if>
+            <if test="params != null and params.endCreateTime != null and params.endCreateTime != ''">
+                and date_format(create_time,'%Y-%m-%d') &lt;= date_format(#{params.endCreateTime},'%Y-%m-%d')
+            </if>
+        </where>
+        order by id desc
+    </select>
+
+    <!-- 详情查询：仅返回未删除数据（子表由 Service 单独装配） -->
+    <select id="selectProductById" parameterType="Long" resultMap="ProductResult">
+        <include refid="selectProductVo"/>
+        where id = #{id} and is_deleted = 0
+    </select>
+
+    <insert id="insertProduct" parameterType="Product" useGeneratedKeys="true" keyProperty="id">
+        insert into product
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="provinceCode != null and provinceCode != ''">province_code,</if>
+            <if test="provinceName != null and provinceName != ''">province_name,</if>
+            <if test="cityCode != null and cityCode != ''">city_code,</if>
+            <if test="cityName != null and cityName != ''">city_name,</if>
+            <if test="agentId != null">agent_id,</if>
+            <if test="agentName != null and agentName != ''">agent_name,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="amount != null">amount,</if>
+            <if test="productType != null">product_type,</if>
+            <if test="productColor != null">product_color,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="status != null">status,</if>
+            <if test="description != null and description != ''">description,</if>
+            <if test="remark != null">remark,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+            <if test="createById != null">create_by,</if>
+            <if test="createByName != null">create_by_name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="provinceCode != null and provinceCode != ''">#{provinceCode},</if>
+            <if test="provinceName != null and provinceName != ''">#{provinceName},</if>
+            <if test="cityCode != null and cityCode != ''">#{cityCode},</if>
+            <if test="cityName != null and cityName != ''">#{cityName},</if>
+            <if test="agentId != null">#{agentId},</if>
+            <if test="agentName != null and agentName != ''">#{agentName},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="productType != null">#{productType},</if>
+            <if test="productColor != null">#{productColor},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="description != null and description != ''">#{description},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+            <if test="createById != null">#{createById},</if>
+            <if test="createByName != null">#{createByName},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <!--
+        软删除：更新 is_deleted=1
+        说明：product 表无独立 modifier 字段，为保留原始创建人(create_by/create_by_name)，
+              此处不覆盖 create_by，仅更新 is_deleted 与 update_time（update_time 即为删除时间）
+    -->
+    <update id="softDeleteProductByIds">
+        update product
+        set is_deleted = 1,
+            update_time = #{updateTime}
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and is_deleted = 0
+    </update>
+</mapper>
